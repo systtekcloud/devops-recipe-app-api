@@ -1,4 +1,4 @@
-version: "3.9"
+# version: "3.9"
 
 services:
   app:
@@ -6,7 +6,8 @@ services:
       context: .
     restart: always
     volumes:
-      - static-data:/vol/web
+      - static-data:/vol/web/static
+      - media-data:/vol/web/media
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -16,6 +17,8 @@ services:
       - ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
     depends_on:
       - db
+    env_file:
+      - .env
 
   db:
     image: postgres:13-alpine
@@ -26,6 +29,8 @@ services:
       - POSTGRES_DB=${DB_NAME}
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASS}
+    env_file:
+      - .env
 
   proxy:
     build:
@@ -34,10 +39,14 @@ services:
     depends_on:
       - app
     ports:
-      - 80:8000
+      - 8081:8000
     volumes:
       - static-data:/vol/static
+      - media-data:/vol/media
+    env_file:
+      - .env
 
 volumes:
   postgres-data:
   static-data:
+  media-data:
